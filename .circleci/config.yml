@@ -6,13 +6,16 @@ orbs:
   welcome: circleci/welcome-orb@0.4.1
   gcp-cli: circleci/gcp-cli@1.8.4
 # Orchestrate or schedule a set of jobs
-workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
-    jobs:
-      - welcome/run
-  install_and_configure_cli:
-    jobs:
-      - gcp-cli/install_and_initialize_cli:
-          executor: gcp-cli/default
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: google/cloud-sdk:latest
+
+    steps:
+      - checkout
+      - gcp-cli/initialize
+      - run:
+          name: Deploy to Google App Engine
+          command: |
+            gcloud --quiet app deploy app.yaml --version=test
